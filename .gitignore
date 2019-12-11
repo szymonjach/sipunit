@@ -56,3 +56,7 @@ docs/sources-telscale/src/
 /bin/
 
 build/
+
+*.txt
+
+.gradle
