@@ -16,6 +16,9 @@
 
 package org.cafesip.sipunit;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.sip.ResponseEvent;
@@ -163,72 +166,74 @@ public class SipResponse extends SipMessage {
 
   static {
     // PROVISIONAL (1xx)
-    statusCodeDescription.put(new Integer(TRYING), "Trying");
-    statusCodeDescription.put(new Integer(RINGING), "Ringing");
-    statusCodeDescription.put(new Integer(CALL_IS_BEING_FORWARDED), "Call is Being Forwarded");
-    statusCodeDescription.put(new Integer(QUEUED), "Queued");
-    statusCodeDescription.put(new Integer(SESSION_PROGRESS), "Session Progress");
+    statusCodeDescription.put(TRYING, "Trying");
+    statusCodeDescription.put(RINGING, "Ringing");
+    statusCodeDescription.put(CALL_IS_BEING_FORWARDED, "Call is Being Forwarded");
+    statusCodeDescription.put(QUEUED, "Queued");
+    statusCodeDescription.put(SESSION_PROGRESS, "Session Progress");
 
     // SUCCESS (2xx)
-    statusCodeDescription.put(new Integer(OK), "OK");
-    statusCodeDescription.put(new Integer(ACCEPTED), "Accepted");
+    statusCodeDescription.put(OK, "OK");
+    statusCodeDescription.put(ACCEPTED, "Accepted");
 
     // REDIRECTION (3xx)
-    statusCodeDescription.put(new Integer(MULTIPLE_CHOICES), "Multiple Choices");
-    statusCodeDescription.put(new Integer(MOVED_PERMANENTLY), "Moved Permanently");
-    statusCodeDescription.put(new Integer(MOVED_TEMPORARILY), "Moved Temporarily");
-    statusCodeDescription.put(new Integer(USE_PROXY), "Use Proxy");
-    statusCodeDescription.put(new Integer(ALTERNATIVE_SERVICE), "Alternative Service");
+    statusCodeDescription.put(MULTIPLE_CHOICES, "Multiple Choices");
+    statusCodeDescription.put(MOVED_PERMANENTLY, "Moved Permanently");
+    statusCodeDescription.put(MOVED_TEMPORARILY, "Moved Temporarily");
+    statusCodeDescription.put(USE_PROXY, "Use Proxy");
+    statusCodeDescription.put(ALTERNATIVE_SERVICE, "Alternative Service");
 
     // CLIENT_ERROR (4xx)
-    statusCodeDescription.put(new Integer(BAD_REQUEST), "Bad Request");
-    statusCodeDescription.put(new Integer(UNAUTHORIZED), "Unauthorized");
-    statusCodeDescription.put(new Integer(PAYMENT_REQUIRED), "Payment Required");
-    statusCodeDescription.put(new Integer(FORBIDDEN), "Forbidden");
-    statusCodeDescription.put(new Integer(NOT_FOUND), "Not Found");
-    statusCodeDescription.put(new Integer(METHOD_NOT_ALLOWED), "Method Not Allowed");
-    statusCodeDescription.put(new Integer(NOT_ACCEPTABLE), "Not Acceptable");
-    statusCodeDescription.put(new Integer(PROXY_AUTHENTICATION_REQUIRED),
+    statusCodeDescription.put(BAD_REQUEST, "Bad Request");
+    statusCodeDescription.put(UNAUTHORIZED, "Unauthorized");
+    statusCodeDescription.put(PAYMENT_REQUIRED, "Payment Required");
+    statusCodeDescription.put(FORBIDDEN, "Forbidden");
+    statusCodeDescription.put(NOT_FOUND, "Not Found");
+    statusCodeDescription.put(METHOD_NOT_ALLOWED, "Method Not Allowed");
+    statusCodeDescription.put(NOT_ACCEPTABLE, "Not Acceptable");
+    statusCodeDescription.put(PROXY_AUTHENTICATION_REQUIRED,
         "Proxy Authentication Required");
-    statusCodeDescription.put(new Integer(REQUEST_TIMEOUT), "Request Timeout");
-    statusCodeDescription.put(new Integer(GONE), "Gone");
-    statusCodeDescription.put(new Integer(REQUEST_ENTITY_TOO_LARGE), "Request Entity Too Large");
-    statusCodeDescription.put(new Integer(REQUEST_URI_TOO_LONG), "Request URI Too Long");
-    statusCodeDescription.put(new Integer(UNSUPPORTED_MEDIA_TYPE), "Unsupported Media Type");
-    statusCodeDescription.put(new Integer(UNSUPPORTED_URI_SCHEME), "Unsupported URI Scheme");
-    statusCodeDescription.put(new Integer(BAD_EXTENSION), "Bad Extension");
-    statusCodeDescription.put(new Integer(EXTENSION_REQUIRED), "Extension Required");
-    statusCodeDescription.put(new Integer(INTERVAL_TOO_BRIEF), "Interval Too Brief");
-    statusCodeDescription.put(new Integer(TEMPORARILY_UNAVAILABLE), "Temporarily Unavailable");
-    statusCodeDescription.put(new Integer(CALL_OR_TRANSACTION_DOES_NOT_EXIST),
+    statusCodeDescription.put(REQUEST_TIMEOUT, "Request Timeout");
+    statusCodeDescription.put(GONE, "Gone");
+    statusCodeDescription.put(REQUEST_ENTITY_TOO_LARGE, "Request Entity Too Large");
+    statusCodeDescription.put(REQUEST_URI_TOO_LONG, "Request URI Too Long");
+    statusCodeDescription.put(UNSUPPORTED_MEDIA_TYPE, "Unsupported Media Type");
+    statusCodeDescription.put(UNSUPPORTED_URI_SCHEME, "Unsupported URI Scheme");
+    statusCodeDescription.put(BAD_EXTENSION, "Bad Extension");
+    statusCodeDescription.put(EXTENSION_REQUIRED, "Extension Required");
+    statusCodeDescription.put(INTERVAL_TOO_BRIEF, "Interval Too Brief");
+    statusCodeDescription.put(TEMPORARILY_UNAVAILABLE, "Temporarily Unavailable");
+    statusCodeDescription.put(CALL_OR_TRANSACTION_DOES_NOT_EXIST,
         "Call or Transaction Does Not Exist");
-    statusCodeDescription.put(new Integer(LOOP_DETECTED), "Loop Detected");
-    statusCodeDescription.put(new Integer(TOO_MANY_HOPS), "Too Many Hops");
-    statusCodeDescription.put(new Integer(ADDRESS_INCOMPLETE), "Address Incomplete");
-    statusCodeDescription.put(new Integer(AMBIGUOUS), "Ambiguous");
-    statusCodeDescription.put(new Integer(BUSY_HERE), "Busy Here");
-    statusCodeDescription.put(new Integer(REQUEST_TERMINATED), "Request Terminated");
-    statusCodeDescription.put(new Integer(NOT_ACCEPTABLE_HERE), "Not Acceptable Here");
-    statusCodeDescription.put(new Integer(BAD_EVENT), "Bad Event");
-    statusCodeDescription.put(new Integer(REQUEST_PENDING), "Request Pending");
-    statusCodeDescription.put(new Integer(UNDECIPHERABLE), "Undecipherable");
+    statusCodeDescription.put(LOOP_DETECTED, "Loop Detected");
+    statusCodeDescription.put(TOO_MANY_HOPS, "Too Many Hops");
+    statusCodeDescription.put(ADDRESS_INCOMPLETE, "Address Incomplete");
+    statusCodeDescription.put(AMBIGUOUS, "Ambiguous");
+    statusCodeDescription.put(BUSY_HERE, "Busy Here");
+    statusCodeDescription.put(REQUEST_TERMINATED, "Request Terminated");
+    statusCodeDescription.put(NOT_ACCEPTABLE_HERE, "Not Acceptable Here");
+    statusCodeDescription.put(BAD_EVENT, "Bad Event");
+    statusCodeDescription.put(REQUEST_PENDING, "Request Pending");
+    statusCodeDescription.put(UNDECIPHERABLE, "Undecipherable");
 
     // SERVER_ERROR (5xx)
-    statusCodeDescription.put(new Integer(SERVER_INTERNAL_ERROR), "Server Internal Error");
-    statusCodeDescription.put(new Integer(NOT_IMPLEMENTED), "Not Implemented");
-    statusCodeDescription.put(new Integer(BAD_GATEWAY), "Bad Gateway");
-    statusCodeDescription.put(new Integer(SERVICE_UNAVAILABLE), "Service Unavailable");
-    statusCodeDescription.put(new Integer(SERVER_TIMEOUT), "Server Timeout");
-    statusCodeDescription.put(new Integer(VERSION_NOT_SUPPORTED), "Version Not Supported");
-    statusCodeDescription.put(new Integer(MESSAGE_TOO_LARGE), "Message Too Large");
+    statusCodeDescription.put(SERVER_INTERNAL_ERROR, "Server Internal Error");
+    statusCodeDescription.put(NOT_IMPLEMENTED, "Not Implemented");
+    statusCodeDescription.put(BAD_GATEWAY, "Bad Gateway");
+    statusCodeDescription.put(SERVICE_UNAVAILABLE, "Service Unavailable");
+    statusCodeDescription.put(SERVER_TIMEOUT, "Server Timeout");
+    statusCodeDescription.put(VERSION_NOT_SUPPORTED, "Version Not Supported");
+    statusCodeDescription.put(MESSAGE_TOO_LARGE, "Message Too Large");
 
     // GLOBAL_ERROR (6xx)
-    statusCodeDescription.put(new Integer(BUSY_EVERYWHERE), "Busy Everywhere");
-    statusCodeDescription.put(new Integer(DECLINE), "Decline");
-    statusCodeDescription.put(new Integer(DOES_NOT_EXIST_ANYWHERE), "Does Not Exist Anywhere");
-    statusCodeDescription.put(new Integer(SESSION_NOT_ACCEPTABLE), "Session Not Acceptable");
+    statusCodeDescription.put(BUSY_EVERYWHERE, "Busy Everywhere");
+    statusCodeDescription.put(DECLINE, "Decline");
+    statusCodeDescription.put(DOES_NOT_EXIST_ANYWHERE, "Does Not Exist Anywhere");
+    statusCodeDescription.put(SESSION_NOT_ACCEPTABLE, "Session Not Acceptable");
   }
 
+  @Getter
+  @Setter
   private ResponseEvent responseEvent;
 
   /**
@@ -283,24 +288,5 @@ public class SipResponse extends SipMessage {
     }
 
     return ((Response) message).getStatusCode();
-  }
-
-  /**
-   * Use this method if you need the JAIN-SIP response event associated with a response received by
-   * high level SipUnit classes like SipCall and Subscription.
-   * 
-   * @return Returns the responseEvent.
-   */
-  public ResponseEvent getResponseEvent() {
-    return responseEvent;
-  }
-
-  /**
-   * A setter for the response event.
-   * 
-   * @param responseEvent The responseEvent to set.
-   */
-  public void setResponseEvent(ResponseEvent responseEvent) {
-    this.responseEvent = responseEvent;
   }
 }

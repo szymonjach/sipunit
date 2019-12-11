@@ -16,25 +16,19 @@
 
 package org.cafesip.sipunit;
 
-import static com.jayway.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.concurrent.Callable;
+import com.jayway.awaitility.core.ConditionTimeoutException;
+import lombok.experimental.UtilityClass;
 
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.Header;
 import javax.sip.message.Request;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
-import com.jayway.awaitility.core.ConditionTimeoutException;
+import static com.jayway.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class is the static equivalent of SipTestCase. It is intended for use with JUnit 4 or for
@@ -56,6 +50,7 @@ import com.jayway.awaitility.core.ConditionTimeoutException;
  * @author Becky McElroy
  * 
  */
+@UtilityClass
 public class SipAssert {
 
   /**
@@ -63,20 +58,9 @@ public class SipAssert {
    * 
    * @param op the SipUnit object that executed an operation.
    */
-  public static void assertLastOperationSuccess(SipActionObject op) {
-    assertLastOperationSuccess(null, op);
-  }
-
-  /**
-   * Asserts that the last SIP operation performed by the given object was successful. Assertion
-   * failure output includes the given message text.
-   * 
-   * @param msg message text to output if the assertion fails.
-   * @param op the SipUnit object that executed an operation.
-   */
-  public static void assertLastOperationSuccess(String msg, SipActionObject op) {
-    assertNotNull("Null assert object passed in", op);
-    assertTrue(msg, op.getErrorMessage().length() == 0);
+  public void assertLastOperationSuccess(SipActionObject op) {
+    assertNotNull(op);
+    assertEquals(0, op.getErrorMessage().length());
   }
 
   /**
@@ -84,20 +68,9 @@ public class SipAssert {
    * 
    * @param op the SipUnit object that executed an operation.
    */
-  public static void assertLastOperationFail(SipActionObject op) {
-    assertLastOperationFail(null, op);
-  }
-
-  /**
-   * Asserts that the last SIP operation performed by the given object failed. Assertion failure
-   * output includes the given message text.
-   * 
-   * @param msg message text to output if the assertion fails.
-   * @param op the SipUnit object that executed an operation.
-   */
-  public static void assertLastOperationFail(String msg, SipActionObject op) {
-    assertNotNull("Null assert object passed in", op);
-    assertTrue(msg, op.getErrorMessage().length() > 0);
+  public void assertLastOperationFail(SipActionObject op) {
+    assertNotNull(op);
+    assertTrue(op.getErrorMessage().length() > 0);
   }
 
   /**
@@ -107,22 +80,9 @@ public class SipAssert {
    * @param header the string identifying the header, as specified in RFC-3261.
    * 
    */
-  public static void assertHeaderPresent(SipMessage sipMessage, String header) {
-    assertHeaderPresent(null, sipMessage, header); // header is case
-    // sensitive?
-  }
-
-  /**
-   * Asserts that the given SIP message contains at least one occurrence of the specified header.
-   * Assertion failure output includes the given message text.
-   * 
-   * @param msg message text to output if the assertion fails.
-   * @param sipMessage the SIP message.
-   * @param header the string identifying the header as specified in RFC-3261.
-   */
-  public static void assertHeaderPresent(String msg, SipMessage sipMessage, String header) {
-    assertNotNull("Null assert object passed in", sipMessage);
-    assertTrue(msg, sipMessage.getHeaders(header).hasNext());
+  public void assertHeaderPresent(SipMessage sipMessage, String header) {
+    assertNotNull(sipMessage);
+    assertTrue(sipMessage.getHeaders(header).hasNext());
   }
 
   /**
@@ -131,37 +91,9 @@ public class SipAssert {
    * @param sipMessage the SIP message.
    * @param header the string identifying the header as specified in RFC-3261.
    */
-  public static void assertHeaderNotPresent(SipMessage sipMessage, String header) {
-    assertHeaderNotPresent(null, sipMessage, header);
-  }
-
-  /**
-   * Asserts that the given SIP message contains no occurrence of the specified header. Assertion
-   * failure output includes the given message text.
-   * 
-   * @param msg message text to output if the assertion fails.
-   * @param sipMessage the SIP message.
-   * @param header the string identifying the header as specified in RFC-3261.
-   */
-  public static void assertHeaderNotPresent(String msg, SipMessage sipMessage, String header) {
-    assertNotNull("Null assert object passed in", sipMessage);
-    assertFalse(msg, sipMessage.getHeaders(header).hasNext());
-  }
-
-  /**
-   * Asserts that the given SIP message contains at least one occurrence of the specified header and
-   * that at least one occurrence of this header contains the given value. The assertion fails if no
-   * occurrence of the header contains the value or if the header is not present in the mesage.
-   * 
-   * @param sipMessage the SIP message.
-   * @param header the string identifying the header as specified in RFC-3261.
-   * @param value the string value within the header to look for. An exact string match is done
-   *        against the entire contents of the header. The assertion will pass if any part of the
-   *        header matches the value given.
-   */
-  public static void assertHeaderContains(SipMessage sipMessage, String header, String value) {
-    assertHeaderContains(null, sipMessage, header, value); // value is case
-    // sensitive?
+  public void assertHeaderNotPresent(SipMessage sipMessage, String header) {
+    assertNotNull(sipMessage);
+    assertFalse(sipMessage.getHeaders(header).hasNext());
   }
 
   /**
@@ -170,42 +102,26 @@ public class SipAssert {
    * occurrence of the header contains the value or if the header is not present in the mesage.
    * Assertion failure output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param sipMessage the SIP message.
    * @param header the string identifying the header as specified in RFC-3261.
    * @param value the string value within the header to look for. An exact string match is done
    *        against the entire contents of the header. The assertion will pass if any part of the
    *        header matches the value given.
    */
-  public static void assertHeaderContains(String msg, SipMessage sipMessage, String header,
+  public void assertHeaderContains(SipMessage sipMessage, String header,
       String value) {
-    assertNotNull("Null assert object passed in", sipMessage);
+    assertNotNull(sipMessage);
     ListIterator<Header> l = sipMessage.getHeaders(header);
     while (l.hasNext()) {
-      String h = ((Header) l.next()).toString();
+      String h = l.next().toString();
 
-      if (h.indexOf(value) != -1) {
+      if (h.contains(value)) {
         assertTrue(true);
         return;
       }
     }
 
-    fail(msg);
-  }
-
-  /**
-   * Asserts that the given SIP message contains no occurrence of the specified header with the
-   * value given, or that there is no occurrence of the header in the message. The assertion fails
-   * if any occurrence of the header contains the value.
-   * 
-   * @param sipMessage the SIP message.
-   * @param header the string identifying the header as specified in RFC-3261.
-   * @param value the string value within the header to look for. An exact string match is done
-   *        against the entire contents of the header. The assertion will fail if any part of the
-   *        header matches the value given.
-   */
-  public static void assertHeaderNotContains(SipMessage sipMessage, String header, String value) {
-    assertHeaderNotContains(null, sipMessage, header, value);
+    fail();
   }
 
   /**
@@ -214,22 +130,21 @@ public class SipAssert {
    * if any occurrence of the header contains the value. Assertion failure output includes the given
    * message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param sipMessage the SIP message.
    * @param header the string identifying the header as specified in RFC-3261.
    * @param value the string value within the header to look for. An exact string match is done
    *        against the entire contents of the header. The assertion will fail if any part of the
    *        header matches the value given.
    */
-  public static void assertHeaderNotContains(String msg, SipMessage sipMessage, String header,
+  public void assertHeaderNotContains(SipMessage sipMessage, String header,
       String value) {
-    assertNotNull("Null assert object passed in", sipMessage);
+    assertNotNull(sipMessage);
     ListIterator<Header> l = sipMessage.getHeaders(header);
     while (l.hasNext()) {
-      String h = ((Header) l.next()).toString();
+      String h = l.next().toString();
 
-      if (h.indexOf(value) != -1) {
-        fail(msg);
+      if (h.contains(value)) {
+        fail();
       }
     }
 
@@ -238,40 +153,14 @@ public class SipAssert {
 
   /**
    * Asserts that the given message listener object received a response with the indicated status
-   * code.
-   * 
-   * @param statusCode The response status code to check for (eg, SipResponse.RINGING)
-   * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
-   */
-  public static void assertResponseReceived(int statusCode, MessageListener obj) {
-    assertResponseReceived(null, statusCode, obj);
-  }
-
-  /**
-   * Asserts that the given message listener object received a response with the indicated status
-   * code, CSeq method and CSeq sequence number.
-   * 
-   * @param statusCode The response status code to check for (eg, SipResponse.RINGING)
-   * @param method The CSeq method to look for (SipRequest.INVITE, etc.)
-   * @param sequenceNumber The CSeq sequence number to look for
-   * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
-   */
-  public static void assertResponseReceived(int statusCode, String method, long sequenceNumber,
-      MessageListener obj) {
-    assertResponseReceived(null, statusCode, method, sequenceNumber, obj);
-  }
-
-  /**
-   * Asserts that the given message listener object received a response with the indicated status
    * code. Assertion failure output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param statusCode The response status code to check for (eg, SipResponse.RINGING)
    * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
    */
-  public static void assertResponseReceived(String msg, int statusCode, MessageListener obj) {
-    assertNotNull("Null assert object passed in", obj);
-    assertTrue(msg, responseReceived(statusCode, obj));
+  public void assertResponseReceived(int statusCode, MessageListener obj) {
+    assertNotNull(obj);
+    assertTrue(responseReceived(statusCode, obj));
   }
 
   /**
@@ -282,14 +171,8 @@ public class SipAssert {
    * @throws ConditionTimeoutException If condition was not fulfilled within the default time
    *         period.
    */
-  public static void awaitReceivedResponses(final SipCall call, final int count) {
-    await().until(new Callable<Integer>() {
-
-      @Override
-      public Integer call() throws Exception {
-        return call.getAllReceivedResponses().size();
-      }
-    }, is(count));
+  public void awaitReceivedResponses(final SipCall call, final int count) {
+    await().until(() -> call.getAllReceivedResponses().size(), is(count));
   }
 
   /**
@@ -300,7 +183,7 @@ public class SipAssert {
    * @param messageListener the {@link MessageListener} we want to check
    * @return true if a received response matches the given statusCode
    */
-  public static boolean responseReceived(int statusCode, MessageListener messageListener) {
+  public boolean responseReceived(int statusCode, MessageListener messageListener) {
     ArrayList<SipResponse> responses = messageListener.getAllReceivedResponses();
 
     for (SipResponse r : responses) {
@@ -317,25 +200,22 @@ public class SipAssert {
    * code, CSeq method and CSeq sequence number. Assertion failure output includes the given message
    * text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param statusCode The response status code to check for (eg, SipResponse.RINGING)
    * @param method The CSeq method to look for (SipRequest.INVITE, etc.)
    * @param sequenceNumber The CSeq sequence number to look for
    * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
    */
-  public static void assertResponseReceived(String msg, int statusCode, String method,
+  public void assertResponseReceived(int statusCode, String method,
       long sequenceNumber, MessageListener obj) {
-    assertNotNull("Null assert object passed in", obj);
-    assertTrue(msg, responseReceived(statusCode, method, sequenceNumber, obj));
+    assertNotNull(obj);
+    assertTrue(responseReceived(statusCode, method, sequenceNumber, obj));
   }
 
-  private static boolean responseReceived(int statusCode, String method, long sequenceNumber,
+  private boolean responseReceived(int statusCode, String method, long sequenceNumber,
       MessageListener obj) {
     List<SipResponse> responses = obj.getAllReceivedResponses();
 
-    Iterator<SipResponse> i = responses.iterator();
-    while (i.hasNext()) {
-      SipResponse resp = i.next();
+    for (SipResponse resp : responses) {
       if (resp.getStatusCode() == statusCode) {
         CSeqHeader hdr = (CSeqHeader) resp.getMessage().getHeader(CSeqHeader.NAME);
         if (hdr != null) {
@@ -353,42 +233,14 @@ public class SipAssert {
 
   /**
    * Asserts that the given message listener object has not received a response with the indicated
-   * status code.
-   * 
-   * @param statusCode The response status code to verify absent (eg, SipResponse.RINGING)
-   * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
-   * 
-   */
-  public static void assertResponseNotReceived(int statusCode, MessageListener obj) {
-    assertResponseNotReceived(null, statusCode, obj);
-  }
-
-  /**
-   * Asserts that the given message listener object has not received a response with the indicated
    * status code. Assertion failure output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param statusCode The response status code to verify absent (eg, SipResponse.RINGING)
    * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
    */
-  public static void assertResponseNotReceived(String msg, int statusCode, MessageListener obj) {
-    assertNotNull("Null assert object passed in", obj);
-    assertFalse(msg, responseReceived(statusCode, obj));
-  }
-
-  /**
-   * Asserts that the given message listener object has not received a response with the indicated
-   * status code, CSeq method and sequence number.
-   * 
-   * @param statusCode The response status code to verify absent (eg, SipResponse.RINGING)
-   * @param method The CSeq method to verify absent (SipRequest.INVITE, etc.)
-   * @param sequenceNumber The CSeq sequence number to verify absent
-   * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
-   * 
-   */
-  public static void assertResponseNotReceived(int statusCode, String method, long sequenceNumber,
-      MessageListener obj) {
-    assertResponseNotReceived(null, statusCode, method, sequenceNumber, obj);
+  public void assertResponseNotReceived(int statusCode, MessageListener obj) {
+    assertNotNull(obj);
+    assertFalse(responseReceived(statusCode, obj));
   }
 
   /**
@@ -396,60 +248,34 @@ public class SipAssert {
    * status code, CSeq method and sequence number. Assertion failure output includes the given
    * message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param statusCode The response status code to verify absent (eg, SipResponse.RINGING)
    * @param method The CSeq method to verify absent (SipRequest.INVITE, etc.)
    * @param sequenceNumber The CSeq sequence number to verify absent
    * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
    */
-  public static void assertResponseNotReceived(String msg, int statusCode, String method,
+  public void assertResponseNotReceived(int statusCode, String method,
       long sequenceNumber, MessageListener obj) {
-    assertNotNull("Null assert object passed in", obj);
-    assertFalse(msg, responseReceived(statusCode, method, sequenceNumber, obj));
-  }
-
-  /**
-   * Asserts that the given message listener object received a request with the indicated request
-   * method.
-   * 
-   * @param method The request method to check for (eg, SipRequest.BYE)
-   * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
-   */
-  public static void assertRequestReceived(String method, MessageListener obj) {
-    assertRequestReceived(null, method, obj);
-  }
-
-  /**
-   * Asserts that the given message listener object received a request with the indicated CSeq
-   * method and CSeq sequence number.
-   * 
-   * @param method The CSeq method to look for (SipRequest.REGISTER, etc.)
-   * @param sequenceNumber The CSeq sequence number to look for
-   * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
-   */
-  public static void assertRequestReceived(String method, long sequenceNumber, MessageListener obj) {
-    assertRequestReceived(null, method, sequenceNumber, obj);
+    assertNotNull(obj);
+    assertFalse(responseReceived(statusCode, method, sequenceNumber, obj));
   }
 
   /**
    * Asserts that the given message listener object received a request with the indicated request
    * method. Assertion failure output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param method The request method to check for (eg, SipRequest.INVITE)
    * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
    */
-  public static void assertRequestReceived(String msg, String method, MessageListener obj) {
-    assertNotNull("Null assert object passed in", obj);
-    assertTrue(msg, requestReceived(method, obj));
+  public void assertRequestReceived(String method, MessageListener obj) {
+    assertNotNull(obj);
+    assertTrue(requestReceived(method, obj));
   }
 
-  private static boolean requestReceived(String method, MessageListener obj) {
+  private boolean requestReceived(String method, MessageListener obj) {
     List<SipRequest> requests = obj.getAllReceivedRequests();
 
-    Iterator<SipRequest> i = requests.iterator();
-    while (i.hasNext()) {
-      Request req = (Request) i.next().getMessage();
+    for (SipRequest request : requests) {
+      Request req = (Request) request.getMessage();
       if (req != null) {
         if (req.getMethod().equals(method)) {
           return true;
@@ -464,23 +290,21 @@ public class SipAssert {
    * Asserts that the given message listener object received a request with the indicated CSeq
    * method and CSeq sequence number. Assertion failure output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param method The CSeq method to look for (SipRequest.INVITE, etc.)
    * @param sequenceNumber The CSeq sequence number to look for
    * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
    */
-  public static void assertRequestReceived(String msg, String method, long sequenceNumber,
+  public void assertRequestReceived(String method, long sequenceNumber,
       MessageListener obj) {
-    assertNotNull("Null assert object passed in", obj);
-    assertTrue(msg, requestReceived(method, sequenceNumber, obj));
+    assertNotNull(obj);
+    assertTrue(requestReceived(method, sequenceNumber, obj));
   }
 
-  private static boolean requestReceived(String method, long sequenceNumber, MessageListener obj) {
+  private boolean requestReceived(String method, long sequenceNumber, MessageListener obj) {
     List<SipRequest> requests = obj.getAllReceivedRequests();
 
-    Iterator<SipRequest> i = requests.iterator();
-    while (i.hasNext()) {
-      Request req = (Request) i.next().getMessage();
+    for (SipRequest request : requests) {
+      Request req = (Request) request.getMessage();
       if (req != null) {
         CSeqHeader hdr = (CSeqHeader) req.getHeader(CSeqHeader.NAME);
         if (hdr != null) {
@@ -498,77 +322,39 @@ public class SipAssert {
 
   /**
    * Asserts that the given message listener object has not received a request with the indicated
-   * request method.
-   * 
-   * @param method The request method to verify absent (eg, SipRequest.BYE)
-   * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
-   * 
-   */
-  public static void assertRequestNotReceived(String method, MessageListener obj) {
-    assertRequestNotReceived(null, method, obj);
-  }
-
-  /**
-   * Asserts that the given message listener object has not received a request with the indicated
    * request method. Assertion failure output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param method The request method to verify absent (eg, SipRequest.BYE)
    * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
    */
-  public static void assertRequestNotReceived(String msg, String method, MessageListener obj) {
-    assertNotNull("Null assert object passed in", obj);
-    assertFalse(msg, requestReceived(method, obj));
-  }
-
-  /**
-   * Asserts that the given message listener object has not received a request with the indicated
-   * CSeq method and sequence number.
-   * 
-   * @param method The CSeq method to verify absent (SipRequest.INVITE, etc.)
-   * @param sequenceNumber The CSeq sequence number to verify absent
-   * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
-   * 
-   */
-  public static void assertRequestNotReceived(String method, long sequenceNumber,
-      MessageListener obj) {
-    assertRequestNotReceived(null, method, sequenceNumber, obj);
+  public void assertRequestNotReceived(String method, MessageListener obj) {
+    assertNotNull(obj);
+    assertFalse(requestReceived(method, obj));
   }
 
   /**
    * Asserts that the given message listener object has not received a request with the indicated
    * CSeq method and sequence number. Assertion failure output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param method The CSeq method to verify absent (SipRequest.INVITE, etc.)
    * @param sequenceNumber The CSeq sequence number to verify absent
    * @param obj The MessageListener object (ie, SipCall, Subscription, etc.).
    */
-  public static void assertRequestNotReceived(String msg, String method, long sequenceNumber,
+  public void assertRequestNotReceived(String method, long sequenceNumber,
       MessageListener obj) {
-    assertNotNull("Null assert object passed in", obj);
-    assertFalse(msg, requestReceived(method, sequenceNumber, obj));
-  }
-
-  /**
-   * Asserts that the given incoming or outgoing call leg was answered.
-   * 
-   * @param call The incoming or outgoing call leg.
-   */
-  public static void assertAnswered(SipCall call) {
-    assertAnswered(null, call);
+    assertNotNull(obj);
+    assertFalse(requestReceived(method, sequenceNumber, obj));
   }
 
   /**
    * Asserts that the given incoming or outgoing call leg was answered. Assertion failure output
    * includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param call The incoming or outgoing call leg.
    */
-  public static void assertAnswered(String msg, SipCall call) {
-    assertNotNull("Null assert object passed in", call);
-    assertTrue(msg, call.isCallAnswered());
+  public void assertAnswered(SipCall call) {
+    assertNotNull(call);
+    assertTrue(call.isCallAnswered());
   }
 
   /**
@@ -577,111 +363,45 @@ public class SipAssert {
    * 
    * @param call The incoming or outgoing call leg.
    */
-  public static void awaitAnswered(SipCall call) {
-    awaitAnswered(null, call);
+  public void awaitAnswered(final SipCall call) {
+    await().until(() -> assertAnswered(call));
   }
 
-  /**
-   * Awaits that the given incoming or outgoing call leg was answered. Assertion failure output
-   * includes the given message text.
-   * 
-   * @param msg message text to output if the assertion fails.
-   * @param call The incoming or outgoing call leg.
-   */
-  public static void awaitAnswered(final String msg, final SipCall call) {
-    await().until(new Runnable() {
-
-      @Override
-      public void run() {
-        assertAnswered(msg, call);
-      }
-    });
-  }
-
-  public static void awaitDialogReady(final ReferNotifySender ub) {
-    await().until(new Runnable() {
-
-      @Override
-      public void run() {
-        assertNotNull(ub.getDialog());
-      }
-    });
-  }
-
-  /**
-   * Asserts that the given incoming or outgoing call leg has not been answered.
-   * 
-   * @param call The incoming or outgoing call leg.
-   */
-  public static void assertNotAnswered(SipCall call) {
-    assertNotAnswered(null, call);
+  public void awaitDialogReady(final ReferNotifySender ub) {
+    await().until(() -> assertNotNull(ub.getDialog()));
   }
 
   /**
    * Asserts that the given incoming or outgoing call leg has not been answered. Assertion failure
    * output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param call The incoming or outgoing call leg.
    */
-  public static void assertNotAnswered(String msg, SipCall call) {
-    assertNotNull("Null assert object passed in", call);
-    assertFalse(msg, call.isCallAnswered());
-  }
-
-  /**
-   * Asserts that the given SIP message contains a body.
-   * 
-   * @param sipMessage the SIP message.
-   */
-  public static void assertBodyPresent(SipMessage sipMessage) {
-    assertBodyPresent(null, sipMessage);
+  public void assertNotAnswered(SipCall call) {
+    assertNotNull(call);
+    assertFalse(call.isCallAnswered());
   }
 
   /**
    * Asserts that the given SIP message contains a body. Assertion failure output includes the given
    * message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param sipMessage the SIP message.
    */
-  public static void assertBodyPresent(String msg, SipMessage sipMessage) {
-    assertNotNull("Null assert object passed in", sipMessage);
-    assertTrue(msg, sipMessage.getContentLength() > 0);
-  }
-
-  /**
-   * Asserts that the given SIP message contains no body.
-   * 
-   * @param sipMessage the SIP message.
-   */
-  public static void assertBodyNotPresent(SipMessage sipMessage) {
-    assertBodyNotPresent(null, sipMessage);
+  public void assertBodyPresent(SipMessage sipMessage) {
+    assertNotNull(sipMessage);
+    assertTrue(sipMessage.getContentLength() > 0);
   }
 
   /**
    * Asserts that the given SIP message contains no body. Assertion failure output includes the
    * given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param sipMessage the SIP message.
    */
-  public static void assertBodyNotPresent(String msg, SipMessage sipMessage) {
-    assertNotNull("Null assert object passed in", sipMessage);
-    assertFalse(msg, sipMessage.getContentLength() > 0);
-  }
-
-  /**
-   * Asserts that the given SIP message contains a body that includes the given value. The assertion
-   * fails if a body is not present in the message or is present but doesn't include the value.
-   * 
-   * @param sipMessage the SIP message.
-   * @param value the string value to look for in the body. An exact string match is done against
-   *        the entire contents of the body. The assertion will pass if any part of the body matches
-   *        the value given. ??case sensitive?
-   */
-  public static void assertBodyContains(SipMessage sipMessage, String value) {
-    assertBodyContains(null, sipMessage, value);
+  public void assertBodyNotPresent(SipMessage sipMessage) {
+    assertNotNull(sipMessage);
+    assertFalse(sipMessage.getContentLength() > 0);
   }
 
   /**
@@ -689,36 +409,22 @@ public class SipAssert {
    * fails if a body is not present in the message or is present but doesn't include the value.
    * Assertion failure output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param sipMessage the SIP message.
    * @param value the string value to look for in the body. An exact string match is done against
    *        the entire contents of the body. The assertion will pass if any part of the body matches
    *        the value given.
    */
-  public static void assertBodyContains(String msg, SipMessage sipMessage, String value) {
-    assertNotNull("Null assert object passed in", sipMessage);
-    assertBodyPresent(msg, sipMessage);
+  public void assertBodyContains(SipMessage sipMessage, String value) {
+    assertNotNull(sipMessage);
+    assertBodyPresent(sipMessage);
     String body = new String(sipMessage.getRawContent());
 
-    if (body.indexOf(value) != -1) {
+    if (body.contains(value)) {
       assertTrue(true);
       return;
     }
 
-    fail(msg);
-  }
-
-  /**
-   * Asserts that the body in the given SIP message does not contain the value given, or that there
-   * is no body in the message. The assertion fails if the body is present and contains the value.
-   * 
-   * @param sipMessage the SIP message.
-   * @param value the string value to look for in the body. An exact string match is done against
-   *        the entire contents of the body. The assertion will fail if any part of the body matches
-   *        the value given.
-   */
-  public static void assertBodyNotContains(SipMessage sipMessage, String value) {
-    assertBodyNotContains(null, sipMessage, value);
+    fail();
   }
 
   /**
@@ -726,19 +432,18 @@ public class SipAssert {
    * is no body in the message. The assertion fails if the body is present and contains the value.
    * Assertion failure output includes the given message text.
    * 
-   * @param msg message text to output if the assertion fails.
    * @param sipMessage the SIP message.
    * @param value the string value to look for in the body. An exact string match is done against
    *        the entire contents of the body. The assertion will fail if any part of the body matches
    *        the value given.
    */
-  public static void assertBodyNotContains(String msg, SipMessage sipMessage, String value) {
-    assertNotNull("Null assert object passed in", sipMessage);
+  public void assertBodyNotContains(SipMessage sipMessage, String value) {
+    assertNotNull(sipMessage);
     if (sipMessage.getContentLength() > 0) {
       String body = new String(sipMessage.getRawContent());
 
-      if (body.indexOf(value) != -1) {
-        fail(msg);
+      if (body.contains(value)) {
+        fail();
       }
     }
 
@@ -747,50 +452,26 @@ public class SipAssert {
 
   /**
    * Asserts that the given Subscription has not encountered any errors while processing received
-   * subscription responses and received NOTIFY requests. If the assertion fails, the encountered
-   * error(s) are included in the failure output.
-   * 
-   * @param subscription the Subscription in question.
-   */
-  public static void assertNoSubscriptionErrors(EventSubscriber subscription) {
-    assertNoSubscriptionErrors(null, subscription);
-  }
-
-  /**
-   * Asserts that the given Subscription has not encountered any errors while processing received
    * subscription responses and received NOTIFY requests. Assertion failure output includes the
    * given message text along with the encountered error(s).
    * 
-   * @param msg message text to include if the assertion fails.
    * @param subscription the Subscription in question.
    */
-  public static void assertNoSubscriptionErrors(String msg, EventSubscriber subscription) {
-    assertNotNull("Null assert object passed in", subscription);
-
-    StringBuffer buf = new StringBuffer(msg == null ? "Subscription error(s)" : msg);
-    Iterator<String> i = subscription.getEventErrors().iterator();
-    while (i.hasNext()) {
-      buf.append(" : ");
-      buf.append((String) i.next());
-    }
-
-    assertEquals(buf.toString(), 0, subscription.getEventErrors().size());
+  public void assertNoSubscriptionErrors(EventSubscriber subscription) {
+    assertNotNull(subscription);
+    assertEquals(0, subscription.getEventErrors().size());
   }
 
   /**
    * Awaits the an error free {@link SipStack#dispose()}.
    */
-  public static void awaitStackDispose(final SipStack sipStack) {
-    await().until(new Runnable() {
-
-      @Override
-      public void run() {
-        try {
-          sipStack.dispose();
-        } catch (RuntimeException e) {
-          e.printStackTrace();
-          fail();
-        }
+  public void awaitStackDispose(final SipStack sipStack) {
+    await().until(() -> {
+      try {
+        sipStack.dispose();
+      } catch (RuntimeException e) {
+        e.printStackTrace();
+        fail();
       }
     });
   }

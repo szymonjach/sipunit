@@ -16,6 +16,7 @@
  */
 package org.cafesip.sipunit;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,10 +81,8 @@ import javax.sip.message.Response;
  * @author Amit Chatterjee, Becky McElroy
  * 
  */
+@Slf4j
 public class SipCall implements SipActionObject, MessageListener {
-
-  private static final Logger LOG = LoggerFactory.getLogger(SipCall.class);
-
   private SipPhone parent;
 
   private int returnCode = -1;
@@ -102,9 +101,9 @@ public class SipCall implements SipActionObject, MessageListener {
 
   private SipTransaction transaction;
 
-  private List<SipResponse> receivedResponses;
+  private final List<SipResponse> receivedResponses;
 
-  private List<SipRequest> receivedRequests;
+  private final List<SipRequest> receivedRequests;
 
   private List<String> allReceivedMessagesContent;
 
@@ -125,9 +124,9 @@ public class SipCall implements SipActionObject, MessageListener {
     this.parent = phone;
     this.myAddress = myAddress;
 
-    receivedResponses = Collections.synchronizedList(new ArrayList<SipResponse>());
-    receivedRequests = Collections.synchronizedList(new ArrayList<SipRequest>());
-    allReceivedMessagesContent = Collections.synchronizedList(new ArrayList<String>());
+    receivedResponses = Collections.synchronizedList(new ArrayList<>());
+    receivedRequests = Collections.synchronizedList(new ArrayList<>());
+    allReceivedMessagesContent = Collections.synchronizedList(new ArrayList<>());
   }
 
   /**
@@ -148,7 +147,7 @@ public class SipCall implements SipActionObject, MessageListener {
             parent.addAuthorizations(callId.getCallId(), bye);
             transaction = parent.sendRequestWithTransaction(bye, false, dialog);
           } catch (Exception e) {
-            LOG.error("Disposing call, couldn't send BYE: " + e.toString(), e);
+            log.error("Disposing call, couldn't send BYE: " + e.toString(), e);
           }
         }
       }
@@ -305,7 +304,7 @@ public class SipCall implements SipActionObject, MessageListener {
     Request request = event.getRequest();
     receivedRequests.add(new SipRequest(event));
 
-    while (request.getMethod().equals(Request.BYE) == false) {
+    while (!request.getMethod().equals(Request.BYE)) {
       event = parent.waitRequest(timeout); // TODO, adjust
 
       if (event == null) {
@@ -399,7 +398,7 @@ public class SipCall implements SipActionObject, MessageListener {
     Request request = event.getRequest();
     receivedRequests.add(new SipRequest(event));
 
-    while (request.getMethod().equals(Request.INVITE) == false) {
+    while (!request.getMethod().equals(Request.INVITE)) {
       event = parent.waitRequest(timeout); // TODO, adjust timeout
 
       if (event == null) {
@@ -490,7 +489,7 @@ public class SipCall implements SipActionObject, MessageListener {
     Request request = event.getRequest();
     receivedRequests.add(new SipRequest(event));
 
-    while (request.getMethod().equals(Request.ACK) == false) {
+    while (!request.getMethod().equals(Request.ACK)) {
       event = parent.waitRequest(timeout); // TODO, adjust
 
       if (event == null) {
@@ -580,7 +579,7 @@ public class SipCall implements SipActionObject, MessageListener {
       }
     }
 
-    while (request.getMethod().equals(Request.MESSAGE) == false) {
+    while (!request.getMethod().equals(Request.MESSAGE)) {
       event = parent.waitRequest(timeout); // TODO, adjust
 
       if (event == null) {
@@ -809,7 +808,7 @@ public class SipCall implements SipActionObject, MessageListener {
       HeaderFactory hdr_factory = parent.getHeaderFactory();
 
       URI request_uri = addr_factory.createURI(toUri);
-      if (request_uri.isSipURI() == false) {
+      if (!request_uri.isSipURI()) {
         setReturnCode(SipSession.UNSUPPORTED_URI_SCHEME);
         setErrorMessage("URI " + toUri + " is not a Sip URI");
         return false;
@@ -926,7 +925,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (transaction == null) {
       returnCode = SipSession.INVALID_OPERATION;
-      errorMessage = (String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      errorMessage = SipSession.statusCodeDescription.get(returnCode)
           + " - no outgoing transactional call in progress";
       return false;
     }
@@ -948,7 +947,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     Response resp = ((ResponseEvent) response_event).getResponse();
     receivedResponses.add(new SipResponse((ResponseEvent) response_event));
-    LOG.trace("Outgoing message response received: {}", resp.toString());
+    log.trace("Outgoing message response received: {}", resp.toString());
 
     setReturnCode(resp.getStatusCode());
     if (returnCode == SipResponse.OK) {
@@ -1115,7 +1114,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (dialog == null) {
       setReturnCode(SipSession.INVALID_OPERATION);
-      setErrorMessage((String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      setErrorMessage(SipSession.statusCodeDescription.get(returnCode)
           + " - dialog hasn't been created, can't wait for RE-INVITE");
       return null;
     }
@@ -1133,7 +1132,7 @@ public class SipCall implements SipActionObject, MessageListener {
     Request request = event.getRequest();
     receivedRequests.add(new SipRequest(event));
 
-    while (request.getMethod().equals(Request.INVITE) == false) {
+    while (!request.getMethod().equals(Request.INVITE)) {
       event = parent.waitRequest(timeout); // TODO, adjust timeout
 
       if (event == null) {
@@ -1280,7 +1279,7 @@ public class SipCall implements SipActionObject, MessageListener {
     initErrorInfo();
 
     try {
-      ContactHeader contact_hdr = null;
+      ContactHeader contact_hdr;
       if (newContact == null) {
         contact_hdr = (ContactHeader) parent.getContactInfo().getContactHeader().clone();
       } else {
@@ -1573,7 +1572,7 @@ public class SipCall implements SipActionObject, MessageListener {
       HeaderFactory hdr_factory = parent.getHeaderFactory();
 
       URI request_uri = addr_factory.createURI(toUri);
-      if (request_uri.isSipURI() == false) {
+      if (!request_uri.isSipURI()) {
         setReturnCode(SipSession.UNSUPPORTED_URI_SCHEME);
         setErrorMessage("URI " + toUri + " is not a Sip URI");
         return false;
@@ -1601,7 +1600,7 @@ public class SipCall implements SipActionObject, MessageListener {
       ToHeader to_header = hdr_factory.createToHeader(to_address, null);
 
       myTag = parent.generateNewTag();
-      FromHeader from_header = hdr_factory.createFromHeader(myAddress, myTag);
+      FromHeader from_header = hdr_factory.createFromHeader(addr_factory.createAddress(fromUri), myTag);
 
       MaxForwardsHeader max_forwards =
           hdr_factory.createMaxForwardsHeader(SipPhone.MAX_FORWARDS_DEFAULT);
@@ -1798,7 +1797,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (dialog == null) {
       setReturnCode(SipSession.INVALID_OPERATION);
-      setErrorMessage((String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      setErrorMessage(SipSession.statusCodeDescription.get(returnCode)
           + " - dialog hasn't been established, can't send RE-INVITE");
       return null;
     }
@@ -1943,7 +1942,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (dialog == null) {
       returnCode = SipSession.INVALID_OPERATION;
-      errorMessage = (String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      errorMessage = SipSession.statusCodeDescription.get(returnCode)
           + " - dialog hasn't been established";
 
       return false;
@@ -2060,7 +2059,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if ((siptrans == null) || (siptrans.getRequest() == null) || (dialog == null)) {
       returnCode = SipSession.INVALID_OPERATION;
-      errorMessage = (String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      errorMessage = SipSession.statusCodeDescription.get(returnCode)
           + " - RE-INVITE transaction info missing";
       return false;
     }
@@ -2182,7 +2181,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (transaction == null) {
       returnCode = SipSession.INVALID_OPERATION;
-      errorMessage = (String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      errorMessage = SipSession.statusCodeDescription.get(returnCode)
           + " - no outgoing transactional call in progress";
       return false;
     }
@@ -2204,7 +2203,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     Response resp = ((ResponseEvent) response_event).getResponse();
     receivedResponses.add(new SipResponse((ResponseEvent) response_event));
-    LOG.trace("Outgoing call response received: {}", resp.toString());
+    log.trace("Outgoing call response received: {}", resp.toString());
 
     setReturnCode(resp.getStatusCode());
     if (returnCode == SipResponse.OK) {
@@ -2261,7 +2260,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (siptrans == null) {
       returnCode = SipSession.INVALID_OPERATION;
-      errorMessage = (String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      errorMessage = SipSession.statusCodeDescription.get(returnCode)
           + " - no RE-INVITE transaction object given";
       return false;
     }
@@ -2283,7 +2282,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     Response resp = ((ResponseEvent) response_event).getResponse();
     receivedResponses.add(new SipResponse((ResponseEvent) response_event));
-    LOG.trace("RE-INVITE response received: {}", resp.toString());
+    log.trace("RE-INVITE response received: {}", resp.toString());
 
     setReturnCode(resp.getStatusCode());
 
@@ -2330,7 +2329,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (dialog == null) {
       returnCode = SipSession.INVALID_OPERATION;
-      errorMessage = (String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      errorMessage = SipSession.statusCodeDescription.get(returnCode)
           + " - dialog hasn't been established";
 
       return false;
@@ -2496,12 +2495,12 @@ public class SipCall implements SipActionObject, MessageListener {
    * @see org.cafesip.sipunit.SipActionObject#format()
    */
   public String format() {
-    if (SipSession.isInternal(returnCode) == true) {
-      return SipSession.statusCodeDescription.get(new Integer(returnCode))
+    if (SipSession.isInternal(returnCode)) {
+      return SipSession.statusCodeDescription.get(returnCode)
           + (errorMessage.length() > 0 ? (": " + errorMessage) : "");
     } else {
       return "Status code received from network = " + returnCode + ", "
-          + SipResponse.statusCodeDescription.get(new Integer(returnCode))
+          + SipResponse.statusCodeDescription.get(returnCode)
           + (errorMessage.length() > 0 ? (": " + errorMessage) : "");
     }
   }
@@ -2549,7 +2548,7 @@ public class SipCall implements SipActionObject, MessageListener {
         return null;
       }
 
-      return (SipResponse) receivedResponses.get(receivedResponses.size() - 1);
+      return receivedResponses.get(receivedResponses.size() - 1);
     }
   }
 
@@ -2569,7 +2568,7 @@ public class SipCall implements SipActionObject, MessageListener {
         return null;
       }
 
-      return (SipRequest) receivedRequests.get(receivedRequests.size() - 1);
+      return receivedRequests.get(receivedRequests.size() - 1);
     }
   }
 
@@ -2684,32 +2683,32 @@ public class SipCall implements SipActionObject, MessageListener {
     // this method is called if there was no response to the request we sent
 
     setReturnCode(SipSession.TIMEOUT_OCCURRED);
-    setErrorMessage((String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+    setErrorMessage(SipSession.statusCodeDescription.get(returnCode)
         + " Received response timeout for: "
         + timeout.getClientTransaction().getRequest().toString());
 
     if (transaction == null) {
-      LOG.error("Unexpected null transaction, received timeout event for: {}", timeout
+      log.error("Unexpected null transaction, received timeout event for: {}", timeout
           .getClientTransaction().getRequest());
       return;
     }
 
     transaction = null;
-    LOG.error(getErrorMessage());
+    log.error(getErrorMessage());
   }
 
   private void processResponse(ResponseEvent responseEvent) {
     Response resp = responseEvent.getResponse();
     receivedResponses.add(new SipResponse(responseEvent));
-    LOG.trace("Asynchronous response received: {}", resp);
+    log.trace("Asynchronous response received: {}", resp);
 
     if (transaction == null) {
       setReturnCode(SipSession.INTERNAL_ERROR);
-      setErrorMessage((String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      setErrorMessage(SipSession.statusCodeDescription.get(returnCode)
           + " Unexpected null transaction, received response: " + resp.toString() + "\n"
           + " for sent request: " + responseEvent.getClientTransaction().getRequest().toString());
 
-      LOG.error(getErrorMessage());
+      log.error(getErrorMessage());
       return;
     }
 
@@ -2736,9 +2735,9 @@ public class SipCall implements SipActionObject, MessageListener {
         || (returnCode == Response.PROXY_AUTHENTICATION_REQUIRED)) {
       authorizeResend(resp, req);
     } else if (returnCode != SipResponse.OK) {
-      setErrorMessage((String) SipSession.statusCodeDescription.get(new Integer(returnCode)));
+      setErrorMessage(SipSession.statusCodeDescription.get(returnCode));
 
-      LOG.error("received response: {}\n for sent request: {}", resp.toString(), req.toString());
+      log.error("received response: {}\n for sent request: {}", resp.toString(), req.toString());
     }
   }
 
@@ -2761,14 +2760,14 @@ public class SipCall implements SipActionObject, MessageListener {
       if (msg == null) {
         setReturnCode(parent.getReturnCode());
         setErrorMessage(parent.getErrorMessage());
-        LOG.error(getErrorMessage());
+        log.error(getErrorMessage());
 
         return;
       }
 
-      if (reInitiateOutgoingCall(msg, this) == false) {
+      if (!reInitiateOutgoingCall(msg, this)) {
         // error info already set
-        LOG.error(getErrorMessage());
+        log.error(getErrorMessage());
       }
     }
   }
@@ -2780,7 +2779,7 @@ public class SipCall implements SipActionObject, MessageListener {
     if (msg == null) {
       setReturnCode(parent.getReturnCode());
       setErrorMessage(parent.getErrorMessage());
-      LOG.error(getErrorMessage());
+      log.error(getErrorMessage());
 
       return;
     }
@@ -2806,10 +2805,8 @@ public class SipCall implements SipActionObject, MessageListener {
     }
 
     if (transaction == null) {
-      LOG.error(getErrorMessage());
+      log.error(getErrorMessage());
     }
-
-    return;
   }
 
   /**
@@ -2870,21 +2867,19 @@ public class SipCall implements SipActionObject, MessageListener {
    *         getErrorMessage() to see the textual error message.
    */
   public boolean waitForAnswer(long timeout) {
-    if (callAnswered == true) {
+    if (callAnswered) {
       return true;
     }
 
-    if (waitOutgoingCallResponse(timeout) == false) {
+    if (!waitOutgoingCallResponse(timeout)) {
       return false;
     }
 
     while (returnCode != SipResponse.OK) {
       if (returnCode / 100 == 1) {
-        if (waitOutgoingCallResponse(timeout) == false) {
+        if (!waitOutgoingCallResponse(timeout)) {
           return false;
         }
-
-        continue;
       } else if ((returnCode == Response.UNAUTHORIZED)
           || (returnCode == Response.PROXY_AUTHENTICATION_REQUIRED)) {
         Request msg = getSentRequest();
@@ -2896,15 +2891,13 @@ public class SipCall implements SipActionObject, MessageListener {
           return false;
         }
 
-        if (reInitiateOutgoingCall(msg) == false) {
+        if (!reInitiateOutgoingCall(msg)) {
           return false;
         }
 
-        if (waitOutgoingCallResponse(timeout) == false) {
+        if (!waitOutgoingCallResponse(timeout)) {
           return false;
         }
-
-        continue;
       } else {
         setErrorMessage("Call was not answered, got this instead: " + returnCode);
         return false;
@@ -2930,7 +2923,7 @@ public class SipCall implements SipActionObject, MessageListener {
    *         the authorisation was not requested, or on any failure response.
    */
   public boolean waitForAuthorisation(long timeout) {
-    if (callAnswered == true) {
+    if (callAnswered) {
       return false;
     }
 
@@ -2952,11 +2945,7 @@ public class SipCall implements SipActionObject, MessageListener {
           return false;
         }
 
-        if (!reInitiateOutgoingCall(msg)) {
-          return false;
-        }
-
-        return true;
+        return reInitiateOutgoingCall(msg);
       }
 
       setErrorMessage("Call did not ask for authorisation, got this instead: " + returnCode);
@@ -3030,14 +3019,14 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (transaction == null) {
       setReturnCode(SipSession.INVALID_OPERATION);
-      setErrorMessage((String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      setErrorMessage(SipSession.statusCodeDescription.get(returnCode)
           + " - transaction is null... Have you called SipPhone.makeCall() or SipCall.initiateOutgoingCall()?");
       return null;
     }
 
     if (!TransactionState.PROCEEDING.equals(transaction.getClientTransaction().getState())) {
       setReturnCode(SipSession.INVALID_OPERATION);
-      setErrorMessage((String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      setErrorMessage(SipSession.statusCodeDescription.get(returnCode)
           + " - cannot send CANCEL: either a provisional response hasn't been received yet or a final response has already been received");
       return null;
     }
@@ -3171,7 +3160,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (dialog == null) {
       setReturnCode(SipSession.INVALID_OPERATION);
-      setErrorMessage((String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      setErrorMessage(SipSession.statusCodeDescription.get(returnCode)
           + " - dialog hasn't been created, can't wait for CANCEL");
       return null;
     }
@@ -3195,8 +3184,8 @@ public class SipCall implements SipActionObject, MessageListener {
 
     receivedRequests.add(new SipRequest(event));
 
-    while ((request.getMethod().equals(Request.CANCEL) == false)
-        || (branchId.equals(transaction.getServerTransaction().getBranchId()) == false)) {
+    while ((!request.getMethod().equals(Request.CANCEL))
+        || (!branchId.equals(transaction.getServerTransaction().getBranchId()))) {
       event = parent.waitRequest(timeout); // TODO, adjust timeout
 
       if (event == null) {
@@ -3390,7 +3379,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     if (siptrans == null) {
       returnCode = SipSession.INVALID_OPERATION;
-      errorMessage = (String) SipSession.statusCodeDescription.get(new Integer(returnCode))
+      errorMessage = SipSession.statusCodeDescription.get(returnCode)
           + " - no RE-INVITE transaction object given";
       return false;
     }
@@ -3412,7 +3401,7 @@ public class SipCall implements SipActionObject, MessageListener {
 
     Response resp = ((ResponseEvent) response_event).getResponse();
     receivedResponses.add(new SipResponse((ResponseEvent) response_event));
-    LOG.info("CANCEL response received: {}", resp.toString());
+    log.info("CANCEL response received: {}", resp.toString());
 
     setReturnCode(resp.getStatusCode());
 

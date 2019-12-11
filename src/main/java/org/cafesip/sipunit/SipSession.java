@@ -1867,6 +1867,7 @@ public class SipSession implements SipListener, SipActionObject {
    *
    * @return A list of ViaHeader
    */
+  @Deprecated
   public ArrayList<ViaHeader> getLocalViaHeaders() {
     return getViaHeaders();
   }

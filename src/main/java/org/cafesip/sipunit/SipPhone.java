@@ -1128,6 +1128,7 @@ public class SipPhone extends SipSession implements SipActionObject, RequestList
    * @return The SipContact object currently in effect for this user agent
    *
    */
+  @Deprecated
   public SipContact getLocalContactInfo() {
     return getContactInfo();
   }

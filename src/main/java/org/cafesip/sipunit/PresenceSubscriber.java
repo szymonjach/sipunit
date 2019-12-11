@@ -33,8 +33,8 @@ import javax.sip.header.EventHeader;
 import javax.sip.message.Request;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.ValidationEvent;
-import javax.xml.bind.ValidationEventHandler;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 
 import org.cafesip.sipunit.presenceparser.pidf.Contact;
 import org.cafesip.sipunit.presenceparser.pidf.Note;
@@ -120,7 +120,7 @@ public class PresenceSubscriber extends EventSubscriber {
 
   protected void checkEventType(EventHeader receivedHdr) throws SubscriptionError {
     String event = receivedHdr.getEventType();
-    if (event.equals("presence") == false) {
+    if (!event.equals("presence")) {
       throw new SubscriptionError(SipResponse.BAD_EVENT,
           "received a presence event header containing unknown event = " + event);
     }
@@ -142,10 +142,10 @@ public class PresenceSubscriber extends EventSubscriber {
           "NOTIFY body has bytes but no content type header was received");
     }
 
-    if (ct.getContentType().equals("application") == false) {
+    if (!ct.getContentType().equals("application")) {
       throw new SubscriptionError(SipResponse.UNSUPPORTED_MEDIA_TYPE,
           "received NOTIFY body with unsupported content type = " + ct.getContentType());
-    } else if (ct.getContentSubType().equals("pidf+xml") == false) {
+    } else if (!ct.getContentSubType().equals("pidf+xml")) {
       throw new SubscriptionError(SipResponse.UNSUPPORTED_MEDIA_TYPE,
           "received NOTIFY body with unsupported content subtype = " + ct.getContentSubType());
     }
@@ -155,16 +155,9 @@ public class PresenceSubscriber extends EventSubscriber {
     try {
       Unmarshaller parser =
           JAXBContext.newInstance("org.cafesip.sipunit.presenceparser.pidf").createUnmarshaller();
-      parser.setEventHandler(new ValidationEventHandler() {
-        public boolean handleEvent(ValidationEvent arg0) {
-          if (arg0.getMessage().startsWith("Unexpected element")) {
-            return true;
-          }
-
-          return false;
-        }
-      });
-      Presence doc = (Presence) parser.unmarshal(new ByteArrayInputStream(bodyBytes));
+      parser.setEventHandler(arg -> arg.getMessage().startsWith("Unexpected element"));
+      Source source = new StreamSource(new ByteArrayInputStream(bodyBytes));
+      Presence doc = parser.unmarshal(source, Presence.class).getValue();
 
       // is it the correct presentity?
 
@@ -182,7 +175,7 @@ public class PresenceSubscriber extends EventSubscriber {
           Tuple t = (Tuple) i.next();
 
           PresenceDeviceInfo dev = new PresenceDeviceInfo();
-          dev.setBasicStatus(t.getStatus().getBasic());
+          dev.setBasicStatus(t.getStatus().getBasic().value());
 
           Contact contact = t.getContact();
           if (contact != null) {
@@ -195,7 +188,9 @@ public class PresenceSubscriber extends EventSubscriber {
           dev.setDeviceExtensions(t.getAny());
           dev.setId(t.getId());
           dev.setStatusExtensions(t.getStatus().getAny());
-          dev.setTimestamp(t.getTimestamp());
+          if(null != t.getTimestamp()) {
+            dev.setTimestamp(t.getTimestamp().toGregorianCalendar());
+          }
 
           List<PresenceNote> notes = new ArrayList<>();
           if (t.getNote() != null) {
@@ -222,7 +217,7 @@ public class PresenceSubscriber extends EventSubscriber {
 
       presenceExtensions.clear();
       if (doc.getAny() != null) {
-        presenceExtensions.addAll((Collection<?>) doc.getAny());
+        presenceExtensions.addAll(doc.getAny());
       }
 
       LOG.trace("Successfully processed NOTIFY message body for Subscription to " + targetUri);
@@ -487,12 +482,7 @@ public class PresenceSubscriber extends EventSubscriber {
       return false;
     }
 
-    if (endSubscription(req, timeout, parent.getProxyHost() != null,
-        "Buddy removed from contact list") == true) {
-      return true;
-    }
-
-    // unsubscribe failed
-    return false;
+    return endSubscription(req, timeout, parent.getProxyHost() != null,
+            "Buddy removed from contact list");
   }
 }

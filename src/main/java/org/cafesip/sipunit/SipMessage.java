@@ -18,7 +18,6 @@
 
 package org.cafesip.sipunit;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ListIterator;
 
@@ -53,7 +52,7 @@ public class SipMessage {
    *         returns an empty ListIterator if no Headers exist of this header type.
    * 
    */
-  protected ListIterator<Header> getHeaders(String header) {
+  protected ListIterator getHeaders(String header) {
     if (message == null) {
       return Collections.<Header>emptyList().listIterator();
     }

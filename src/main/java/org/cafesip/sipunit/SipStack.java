@@ -15,8 +15,8 @@
  */
 package org.cafesip.sipunit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import gov.nist.javax.sip.ResponseEventExt;
 
@@ -61,24 +61,28 @@ import javax.sip.message.MessageFactory;
  *
  * @author Amit Chatterjee, Becky McElroy
  */
+@Slf4j
 public class SipStack implements SipListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SipStack.class);
-
     private static SipFactory sipFactory = null;
 
+    @Getter
     private javax.sip.SipStack sipStack;
 
+    @Getter
     private AddressFactory addressFactory;
 
+    @Getter
     private MessageFactory messageFactory;
 
+    @Getter
     private HeaderFactory headerFactory;
 
+    @Getter
     private SipProvider sipProvider;
 
-    private LinkedList<SipListener> listeners = new LinkedList<>();
+    private final LinkedList<SipListener> listeners = new LinkedList<>();
 
+    @Getter
     private Random random = new Random((new Date()).getTime());
 
     private int retransmissions;
@@ -167,7 +171,7 @@ public class SipStack implements SipListener {
         // on SipStack.dispose() because the factory is reset.
         // Since SipFactory is a singleton then it would affect all sipStacks that are created afterwards.
         String pathName = props.getProperty("javax.sip.STACK_PATH", "gov.nist");
-        LOG.info("Using path name:" + pathName);
+        log.info("Using path name:" + pathName);
         sipFactory.setPathName(pathName);
 
         if (props.getProperty("javax.sip.STACK_NAME") == null) {
@@ -346,12 +350,10 @@ public class SipStack implements SipListener {
      * FOR INTERNAL USE ONLY. Not to be used by a test program.
      */
     public void processRequest(RequestEvent arg0) {
-        LOG.trace("request received !");
+        log.trace("request received !");
         synchronized (listeners) {
-            Iterator<SipListener> iter = listeners.iterator();
-            while (iter.hasNext() == true) {
-                SipListener listener = iter.next();
-                LOG.trace("calling listener");
+            for (SipListener listener : listeners) {
+                log.trace("calling listener");
                 listener.processRequest(arg0);
             }
         }
@@ -365,9 +367,7 @@ public class SipStack implements SipListener {
             if (((ResponseEventExt) arg0).isRetransmission()) {
                 retransmissions++;
             }
-            Iterator iter = listeners.iterator();
-            while (iter.hasNext() == true) {
-                SipListener listener = (SipListener) iter.next();
+            for (SipListener listener : listeners) {
                 listener.processResponse(arg0);
             }
         }
@@ -378,9 +378,7 @@ public class SipStack implements SipListener {
      */
     public void processTimeout(TimeoutEvent arg0) {
         synchronized (listeners) {
-            Iterator<SipListener> iter = listeners.iterator();
-            while (iter.hasNext() == true) {
-                SipListener listener = (SipListener) iter.next();
+            for (SipListener listener : listeners) {
                 listener.processTimeout(arg0);
             }
         }
@@ -406,83 +404,24 @@ public class SipStack implements SipListener {
     }
 
     /**
-     * Gets the JAIN-SIP AddressFactory associated with the SipStack.
-     *
-     * @return the address factory.
-     */
-    public AddressFactory getAddressFactory() {
-        return addressFactory;
-    }
-
-    /**
-     * Gets the JAIN-SIP HeaderFactory associated with the SipStack.
-     *
-     * @return the header factory.
-     */
-    public HeaderFactory getHeaderFactory() {
-        return headerFactory;
-    }
-
-    /**
-     * Gets the JAIN-SIP MessageFactory associated with the SipStack.
-     *
-     * @return the message factory.
-     */
-    public MessageFactory getMessageFactory() {
-        return messageFactory;
-    }
-
-    /**
-     * Gets the JAIN-SIP SipProvider associated with the SipStack.
-     *
-     * @return the sip provider.
-     */
-    public SipProvider getSipProvider() {
-        return sipProvider;
-    }
-
-    /**
-     * Gets the JAIN-SIP SipStack associated with this JUnit SipStack.
-     *
-     * @return the JAIN-SIP SipStack.
-     */
-    public javax.sip.SipStack getSipStack() {
-        return sipStack;
-    }
-
-    /**
-     * @return Returns the random.
-     */
-    protected Random getRandom() {
-        return random;
-    }
-
-    /**
-     * @param random The random to set.
-     */
-    protected void setRandom(Random random) {
-        this.random = random;
-    }
-
-    /**
      * Outputs to console the provided header string followed by the message.
      *
      * @param informationalHeader
      * @param msg
      */
     public static void dumpMessage(String informationalHeader, javax.sip.message.Message msg) {
-        LOG.trace(informationalHeader + "{}.......... \n {}", informationalHeader, msg);
+        log.trace(informationalHeader + "{}.......... \n {}", informationalHeader, msg);
 
         ListIterator rhdrs = msg.getHeaders(RouteHeader.NAME);
         while (rhdrs.hasNext()) {
             RouteHeader rhdr = (RouteHeader) rhdrs.next();
 
             if (rhdr != null) {
-                LOG.trace("RouteHeader address: {}", rhdr.getAddress().toString());
+                log.trace("RouteHeader address: {}", rhdr.getAddress().toString());
                 Iterator i = rhdr.getParameterNames();
                 while (i.hasNext()) {
                     String parm = (String) i.next();
-                    LOG.trace("RouteHeader parameter {}: {}", parm, rhdr.getParameter(parm));
+                    log.trace("RouteHeader parameter {}: {}", parm, rhdr.getParameter(parm));
                 }
             }
         }
@@ -492,11 +431,11 @@ public class SipStack implements SipListener {
             RecordRouteHeader rrhdr = (RecordRouteHeader) rrhdrs.next();
 
             if (rrhdr != null) {
-                LOG.trace("RecordRouteHeader address: {}", rrhdr.getAddress());
+                log.trace("RecordRouteHeader address: {}", rrhdr.getAddress());
                 Iterator i = rrhdr.getParameterNames();
                 while (i.hasNext()) {
                     String parm = (String) i.next();
-                    LOG.trace("RecordRouteHeader parameter {}: {}", parm, rrhdr.getParameter(parm));
+                    log.trace("RecordRouteHeader parameter {}: {}", parm, rrhdr.getParameter(parm));
                 }
             }
         }

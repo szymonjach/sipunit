@@ -16,6 +16,10 @@
 
 package org.cafesip.sipunit;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.EventObject;
 import java.util.LinkedList;
 import javax.sip.ClientTransaction;
@@ -38,6 +42,8 @@ import javax.sip.message.Request;
  * @author Amit Chatterjee
  * 
  */
+@Getter
+@Setter(AccessLevel.PROTECTED)
 public class SipTransaction {
 
   private ClientTransaction clientTransaction;
@@ -61,64 +67,6 @@ public class SipTransaction {
   }
 
   /**
-   * @return Returns the JAIN SIP ClientTransaction. Use this method only within the context of a
-   *         sent request. Knowledge of JAIN SIP API is required to use the returned object.
-   */
-  public ClientTransaction getClientTransaction() {
-    return clientTransaction;
-  }
-
-  /**
-   * @param clientTransaction The clientTransaction to set.
-   */
-  protected void setClientTransaction(ClientTransaction clientTransaction) {
-    this.clientTransaction = clientTransaction;
-  }
-
-  /**
-   * @return Returns the block.
-   */
-  protected BlockObject getBlock() {
-    return block;
-  }
-
-  /**
-   * @param block The block to set.
-   */
-  protected void setBlock(BlockObject block) {
-    this.block = block;
-  }
-
-  /**
-   * @return Returns the events.
-   */
-  protected LinkedList<EventObject> getEvents() {
-    return events;
-  }
-
-  /**
-   * @param events The events to set.
-   */
-  protected void setEvents(LinkedList<EventObject> events) {
-    this.events = events;
-  }
-
-  /**
-   * @return Returns the JAIN SIP ServerTransaction. Use this method only within the context of a
-   *         received request. Knowledge of JAIN SIP API is required to use the returned object.
-   */
-  public ServerTransaction getServerTransaction() {
-    return serverTransaction;
-  }
-
-  /**
-   * @param serverTransaction The serverTransaction to set.
-   */
-  protected void setServerTransaction(ServerTransaction serverTransaction) {
-    this.serverTransaction = serverTransaction;
-  }
-
-  /**
    * The user test program MAY call this method to view the javax.sip.message.Request object that
    * created this transaction. However, knowledge of JAIN SIP API is required to interpret the
    * Request object.
@@ -135,13 +83,5 @@ public class SipTransaction {
     }
 
     return null;
-  }
-
-  protected MessageListener getClientListener() {
-    return clientListener;
-  }
-
-  protected void setClientListener(MessageListener clientListener) {
-    this.clientListener = clientListener;
   }
 }
